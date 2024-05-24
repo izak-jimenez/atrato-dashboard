@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "target": "es2016",
     "module": "esnext",
     "esModuleInterop": true,
@@ -23,8 +24,13 @@
     "isolatedModules": true,
     "noEmit": true
   },
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  },
   "include": [
-    "src/**/*.ts", 
+    "src/**/*.ts",
+    "backend/**/*.ts",
+    "types/**/*.ts", 
     "**/*.ts", 
     "**/*.tsx",
     "**/**/*.ts", 
