@@ -39,6 +39,7 @@ export const UserCreateInput = builder.inputType("UserCreateInput", {
     birthday: t.string({ required: true }),
     status: t.field({ type: Status, required: true }),
     assignedAnalyst: t.string({ required: true }),
+    cardId: t.int(),
   }),
 });
 
@@ -64,6 +65,11 @@ builder.mutationField("createUser", (t) =>
           birthday: args.data.birthday,
           status: args.data.status,
           assignedAnalyst: args.data.assignedAnalyst,
+          card: {
+            connect: {
+              id: (ctx as any).cardId,
+            },
+          },
         },
       });
     },
