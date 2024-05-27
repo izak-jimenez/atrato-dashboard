@@ -32,7 +32,7 @@ export const CardCreateInput = builder.inputType("CardCreateInput", {
   }),
 });
 
-builder.mutationField("createCard", (t) =>
+export const CardCreate = builder.mutationField("createCard", (t) =>
   t.prismaField({
     type: "Card",
     args: {

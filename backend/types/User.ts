@@ -1,6 +1,9 @@
 import { builder } from "../graphql/builder.js";
 
 builder.prismaObject("User", {
+  include: {
+    card: true,
+  },
   fields: (t) => ({
     id: t.exposeID("id"),
     email: t.exposeString("email"),
@@ -9,7 +12,7 @@ builder.prismaObject("User", {
     middleName: t.exposeString("middleName", { nullable: true }),
     fLastName: t.exposeString("fLastName"),
     sLastName: t.exposeString("sLastName", { nullable: true }),
-    birthday: t.exposeString("birthday"),
+    birthday: t.exposeString("birthday", { nullable: true }),
     status: t.expose("status", { type: Status }),
     assignedAnalyst: t.exposeString("assignedAnalyst"),
     card: t.relation("card"),
@@ -28,18 +31,38 @@ builder.queryField("users", (t) =>
   })
 );
 
+export const UserFindInput = builder.inputType("UserFindInput", {
+  fields: (t) => ({
+    id: t.int({ required: true }),
+  }),
+});
+
+builder.queryField("user", (t) =>
+  t.prismaField({
+    type: "User",
+    args: {
+      id: t.arg({ type: "Int", required: true }),
+    },
+    resolve: async (query, _parent, _args, _ctx, _info) =>
+      prisma.user.findUniqueOrThrow({
+        ...query,
+        where: { id: _args.id },
+      }),
+  })
+);
+
 export const UserCreateInput = builder.inputType("UserCreateInput", {
   fields: (t) => ({
     email: t.string({ required: true }),
     phone: t.string({ required: true }),
     name: t.string({ required: true }),
-    middleName: t.string({ required: true }),
+    middleName: t.string({ required: false }),
     fLastName: t.string({ required: true }),
-    sLastName: t.string({ required: true }),
-    birthday: t.string({ required: true }),
+    sLastName: t.string({ required: false }),
+    birthday: t.string({ required: false }),
     status: t.field({ type: Status, required: true }),
     assignedAnalyst: t.string({ required: true }),
-    cardId: t.int(),
+    cardId: t.int({ required: true }),
   }),
 });
 
@@ -67,7 +90,7 @@ builder.mutationField("createUser", (t) =>
           assignedAnalyst: args.data.assignedAnalyst,
           card: {
             connect: {
-              id: (ctx as any).cardId,
+              id: args.data.cardId,
             },
           },
         },

@@ -17,7 +17,7 @@ const serverInit = async () => {
   app.use(cors());
   app.use(json());
   app.use(urlencoded({ extended: true }));
-  app.use("/users", expressMiddleware(server));
+  app.use("/atrato/graphql/api", expressMiddleware(server));
 
   app.listen(port, () => {
     console.log(`Server started on port ${port}`);

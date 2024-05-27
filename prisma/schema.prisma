@@ -25,7 +25,7 @@ model User {
   middleName      String?
   fLastName       String
   sLastName       String?
-  birthday        String
+  birthday        String?
   status          STATUS  @default(PENDING)
   assignedAnalyst String
   card            Card?   @relation(fields: [cardId], references: [id])
