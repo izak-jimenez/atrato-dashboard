@@ -41,6 +41,14 @@ export const UpdateUser = gql`
   }
 `;
 
+export const DeleteUser = gql`
+  mutation DeleteUser($deleteUserId: Int!) {
+    deleteUser(id: $deleteUserId) {
+      id
+    }
+  }
+`;
+
 export const CreateCard = gql`
   mutation CreateCard($data: CardCreateInput!) {
     createCard(data: $data) {

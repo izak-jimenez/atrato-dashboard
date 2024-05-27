@@ -340,6 +340,7 @@ export const UpdateUserForm = ({ user, closeHandler }: UpdateUserFormProps) => {
                         <InputLabel id="statusLabel">Estatus</InputLabel>
                         <Select
                           {...field}
+                          size="small"
                           labelId="statusLabel"
                           id="status"
                           value={userStatus}

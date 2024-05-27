@@ -144,3 +144,18 @@ builder.mutationField("updateUser", (t) =>
     },
   })
 );
+
+builder.mutationField("deleteUser", (t) =>
+  t.prismaField({
+    type: "User",
+    args: {
+      id: t.arg({ type: "Int", required: true }),
+    },
+    resolve: async (query, _parent, args, ctx) => {
+      return prisma.user.delete({
+        ...query,
+        where: { id: args.id },
+      });
+    },
+  })
+);

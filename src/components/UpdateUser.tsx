@@ -18,19 +18,24 @@ import {
   DialogTitle,
   useTheme,
   Chip,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
-import { ChevronLeft, Edit } from "@mui/icons-material";
+import { ChevronLeft, Delete, Edit } from "@mui/icons-material";
+import toast, { Toaster } from "react-hot-toast";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Cards from "react-credit-cards-2";
+import { useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
-import { IUser } from "../types/user";
 import {
   generateCreditCardExpiryDateString,
   parseStatus,
   setStatusChipColor,
 } from "../utils";
-import "react-credit-cards-2/dist/es/styles-compiled.css";
 import { UpdateUserForm } from "./UpdateUserForm";
+import { DeleteUser } from "../graphql/mutations";
+import { IUser } from "../types/user";
+import "react-credit-cards-2/dist/es/styles-compiled.css";
 
 export type UpdateUserProps = {
   user: IUser;
@@ -39,10 +44,36 @@ export type UpdateUserProps = {
 export const UpdateUser = ({ user }: UpdateUserProps) => {
   const navigate = useNavigate();
   const matches = useMediaQuery("(min-width:508px)");
-  const [editMode, setEditMode] = useState<boolean>(false);
   const [open, setOpen] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const handleOpenDeleteDialog = () => setOpenDeleteDialog(true);
+  const handleCloseDeleteDialog = () => setOpenDeleteDialog(false);
+
+  const [deleteUser, { data, loading, error }] = useMutation(DeleteUser, {
+    onCompleted: () => {
+      navigate("/");
+    },
+  });
+
+  const handleDelete = () => {
+    try {
+      toast.promise(
+        deleteUser({
+          variables: { deleteUserId: parseInt(user.id.toString()) },
+        }),
+        {
+          loading: "Eliminando usuario..",
+          success: "Se ha eliminado el usuario de forma exitosa!🎉",
+          error: `Ocurrió un error 😥 Por favor intenta de nuevo -  ${error}`,
+        }
+      );
+      handleCloseDeleteDialog();
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const chipColor = setStatusChipColor(user.status);
 
@@ -59,6 +90,29 @@ export const UpdateUser = ({ user }: UpdateUserProps) => {
     status,
     card: { number, cvv, type, pin, expiration },
   } = user;
+
+  const DeleteUserDialog = () => {
+    return (
+      <Dialog
+        open={openDeleteDialog}
+        onClose={handleCloseDeleteDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            ¿Estás seguro que quieres eliminar este registro?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteDialog}>Cancelar</Button>
+          <Button onClick={handleDelete} autoFocus>
+            Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
 
   const EditUserDialog = () => {
     const theme = useTheme();
@@ -114,6 +168,11 @@ export const UpdateUser = ({ user }: UpdateUserProps) => {
                 <Grid item>
                   <IconButton onClick={handleOpen}>
                     <Edit />
+                  </IconButton>
+                </Grid>
+                <Grid item>
+                  <IconButton onClick={handleOpenDeleteDialog}>
+                    <Delete />
                   </IconButton>
                 </Grid>
               </Grid>
@@ -177,6 +236,7 @@ export const UpdateUser = ({ user }: UpdateUserProps) => {
         </Card>
       </Box>
       <EditUserDialog />
+      <DeleteUserDialog />
     </Container>
   );
 };
