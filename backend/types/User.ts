@@ -98,3 +98,49 @@ builder.mutationField("createUser", (t) =>
     },
   })
 );
+
+export const UserUpdateInput = builder.inputType("UserUpdateInput", {
+  fields: (t) => ({
+    userId: t.int({ required: true }),
+    email: t.string({ required: false }),
+    phone: t.string({ required: false }),
+    name: t.string({ required: false }),
+    middleName: t.string({ required: false }),
+    fLastName: t.string({ required: false }),
+    sLastName: t.string({ required: false }),
+    birthday: t.string({ required: false }),
+    status: t.field({ type: Status, required: false }),
+    assignedAnalyst: t.string({ required: false }),
+  }),
+});
+
+builder.mutationField("updateUser", (t) =>
+  t.prismaField({
+    type: "User",
+    args: {
+      data: t.arg({
+        type: UserUpdateInput,
+        required: true,
+      }),
+    },
+    resolve: async (query, _parent, args, ctx) => {
+      return prisma.user.update({
+        ...query,
+        where: { id: args.data.userId },
+        data: {
+          ...(args.data.email && { email: args.data.email }),
+          ...(args.data.phone && { phone: args.data.phone }),
+          ...(args.data.name && { name: args.data.name }),
+          ...(args.data.middleName && { middleName: args.data.middleName }),
+          ...(args.data.fLastName && { fLastName: args.data.fLastName }),
+          ...(args.data.sLastName && { sLastName: args.data.sLastName }),
+          birthday: args.data.birthday,
+          ...(args.data.status && { status: args.data.status }),
+          ...(args.data.assignedAnalyst && {
+            assignedAnalyst: args.data.assignedAnalyst,
+          }),
+        },
+      });
+    },
+  })
+);

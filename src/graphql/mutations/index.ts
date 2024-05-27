@@ -25,6 +25,22 @@ export const CreateUser = gql`
   }
 `;
 
+export const UpdateUser = gql`
+  mutation UpdateUser($data: UserUpdateInput!) {
+    updateUser(data: $data) {
+      name
+      middleName
+      fLastName
+      sLastName
+      email
+      phone
+      birthday
+      status
+      assignedAnalyst
+    }
+  }
+`;
+
 export const CreateCard = gql`
   mutation CreateCard($data: CardCreateInput!) {
     createCard(data: $data) {

@@ -5,74 +5,58 @@ import {
   CardActions,
   CardContent,
   CardHeader,
-  Container,
   Grid,
   InputLabel,
   MenuItem,
   Select,
   SelectChangeEvent,
-  Stack,
   TextField,
 } from "@mui/material";
-import { useMutation } from "@apollo/client";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import { useCallback, useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { ICreateUserInput, Status } from "../types/user";
-import { useState } from "react";
-import { regexRules } from "../config";
-import {
-  CreateUser as CreateUserMutation,
-  CreateCard,
-} from "../graphql/mutations";
-import { getCard } from "../services";
-import { ICardResponse, ICreateCardInput } from "../types/card";
-import { ApiError } from "../services/card-service";
-import { isCard, parseStatus } from "../utils";
-import { ChevronLeft } from "@mui/icons-material";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
+import { UpdateUser } from "../graphql/mutations";
+import { IFormInput } from "./CreateUser";
+import { IUpdateUserInput, IUser, Status } from "../types/user";
+import { regexRules } from "../config";
+import { parseStatus } from "../utils";
 
-export interface IFormInput {
-  name: string;
-  middleName: string;
-  fLastName: string;
-  sLastName: string;
-  email: string;
-  phone: string;
-  status: Status;
-  assignedAnalyst: string;
-}
+export type UpdateUserFormProps = {
+  user: IUser;
+  closeHandler: Function;
+};
 
-export const CreateUser = () => {
-  const [userStatus, setUserStatus] = useState<Status>(Status.PENDING);
+export const UpdateUserForm = ({ user, closeHandler }: UpdateUserFormProps) => {
   const navigate = useNavigate();
-  const [createUser, createUserMutationState] = useMutation(
-    CreateUserMutation,
-    {
-      onCompleted: () => reset(),
-    }
-  );
-  const [createCard, createCardMutationState] = useMutation(CreateCard);
+  const [userStatus, setUserStatus] = useState<Status>(user.status);
+  const [updateUser, { data, loading, error }] = useMutation(UpdateUser, {
+    onCompleted: () => {
+      closeHandler();
+      navigate(0);
+    },
+  });
   const {
     control,
     handleSubmit,
     formState: { errors },
-    reset,
   } = useForm({
     defaultValues: {
-      name: "",
-      middleName: "",
-      fLastName: "",
-      sLastName: "",
-      email: "",
-      phone: "",
-      status: Status.PENDING,
-      assignedAnalyst: "",
+      name: user.name as string,
+      middleName: user.middleName as string,
+      fLastName: user.fLastName as string,
+      sLastName: user.sLastName as string,
+      email: user.email as string,
+      phone: user.phone as string,
+      status: user.status,
+      assignedAnalyst: user.assignedAnalyst as string,
     },
   });
 
-  const handleChange = (event: SelectChangeEvent) => {
+  const handleChange = useCallback((event: SelectChangeEvent) => {
     setUserStatus(event.target.value as Status);
-  };
+  }, []);
 
   const onSubmit: SubmitHandler<IFormInput> = async ({
     name,
@@ -84,23 +68,8 @@ export const CreateUser = () => {
     status,
     assignedAnalyst,
   }) => {
-    const createCardResponse: ICardResponse | ApiError = await getCard();
-
-    const isCardPredicate = isCard(createCardResponse);
-
-    const createCardInput: ICreateCardInput = {
-      number: isCardPredicate ? createCardResponse.cardNumber : "",
-      cvv: isCardPredicate ? createCardResponse.cvv : "",
-      type: isCardPredicate ? createCardResponse.type : "",
-      pin: isCardPredicate ? "" + createCardResponse.pin : "",
-      expiration: isCardPredicate ? createCardResponse.date : "",
-    };
-
-    const createCardResult = await createCard({
-      variables: { data: { ...createCardInput } },
-    });
-
-    const createUserInput: ICreateUserInput = {
+    const updateUserInput: IUpdateUserInput = {
+      userId: parseInt(user.id.toString()),
       name,
       middleName,
       fLastName,
@@ -109,16 +78,15 @@ export const CreateUser = () => {
       phone,
       status: userStatus,
       assignedAnalyst,
-      cardId: parseInt(createCardResult.data.createCard.id),
     };
 
     try {
       toast.promise(
-        createUser({ variables: { data: { ...createUserInput } } }),
+        updateUser({ variables: { data: { ...updateUserInput } } }),
         {
-          loading: "Creando usuario..",
-          success: "Se ha creado el usuario de forma exitosa!🎉",
-          error: `Ocurrió un error 😥 Por favor intenta de nuevo -  ${createUserMutationState.error}`,
+          loading: "Actualizando usuario..",
+          success: "Se ha actualizado el usuario de forma exitosa!🎉",
+          error: `Ocurrió un error 😥 Por favor intenta de nuevo -  ${error}`,
         }
       );
     } catch (error) {
@@ -127,24 +95,10 @@ export const CreateUser = () => {
   };
 
   return (
-    <Container sx={{ paddingTop: "2rem" }}>
+    <>
       <Toaster position="top-right" />
-      <Stack
-        direction="row"
-        justifyContent="start"
-        sx={{ paddingBottom: "2rem" }}
-      >
-        <Button
-          variant="outlined"
-          onClick={() => navigate("/")}
-          startIcon={<ChevronLeft />}
-        >
-          Regresar
-        </Button>
-      </Stack>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Card sx={{ padding: 10 }}>
-          <CardHeader title="Nuevo Usuario" />
           <CardContent>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6} md={6} lg={6}>
@@ -410,12 +364,20 @@ export const CreateUser = () => {
             </Grid>
           </CardContent>
           <CardActions>
-            <Button size="large" type="submit" variant="contained">
-              Crear
+            <Button
+              size="large"
+              variant="contained"
+              onClick={() => closeHandler()}
+              fullWidth
+            >
+              Cancelar
+            </Button>
+            <Button size="large" type="submit" variant="contained" fullWidth>
+              Actualizar
             </Button>
           </CardActions>
         </Card>
       </form>
-    </Container>
+    </>
   );
 };

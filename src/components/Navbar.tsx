@@ -87,7 +87,7 @@ function ResponsiveAppBar() {
               maxWidth: { xs: 200, md: 250 },
             }}
             alt="atrato logo"
-            src="imgs/ColorLogo.png"
+            src="/imgs/ColorLogo.png"
           />
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (

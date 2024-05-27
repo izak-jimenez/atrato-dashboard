@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Avatar,
   Box,
@@ -12,15 +13,24 @@ import {
   IconButton,
   Stack,
   Typography,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  useTheme,
+  Chip,
 } from "@mui/material";
 import { ChevronLeft, Edit } from "@mui/icons-material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Cards from "react-credit-cards-2";
-import { IUser } from "../types/user";
-import { generateCreditCardExpiryDateString } from "../utils";
 import { useNavigate } from "react-router-dom";
+import { IUser } from "../types/user";
+import {
+  generateCreditCardExpiryDateString,
+  parseStatus,
+  setStatusChipColor,
+} from "../utils";
 import "react-credit-cards-2/dist/es/styles-compiled.css";
-import { useState } from "react";
+import { UpdateUserForm } from "./UpdateUserForm";
 
 export type UpdateUserProps = {
   user: IUser;
@@ -30,6 +40,11 @@ export const UpdateUser = ({ user }: UpdateUserProps) => {
   const navigate = useNavigate();
   const matches = useMediaQuery("(min-width:508px)");
   const [editMode, setEditMode] = useState<boolean>(false);
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  const chipColor = setStatusChipColor(user.status);
 
   const {
     id,
@@ -45,9 +60,25 @@ export const UpdateUser = ({ user }: UpdateUserProps) => {
     card: { number, cvv, type, pin, expiration },
   } = user;
 
-  const handleEdit = () => {};
-
-  const editModeCard = () => {};
+  const EditUserDialog = () => {
+    const theme = useTheme();
+    const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
+    return (
+      <Dialog
+        fullScreen={fullScreen}
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="responsive-dialog-title"
+      >
+        <DialogTitle id="responsive-dialog-title">
+          {"Modificar Datos"}
+        </DialogTitle>
+        <DialogContent>
+          <UpdateUserForm user={user} closeHandler={handleClose} />
+        </DialogContent>
+      </Dialog>
+    );
+  };
 
   return (
     <Container sx={{ paddingTop: "2rem" }} maxWidth="md">
@@ -73,9 +104,19 @@ export const UpdateUser = ({ user }: UpdateUserProps) => {
             subheader={`ID: ${id}`}
             sx={{ color: "#183189", fontWeight: "bold" }}
             action={
-              <IconButton onClick={handleEdit}>
-                <Edit />
-              </IconButton>
+              <Grid container spacing={2}>
+                <Grid item>
+                  <Chip
+                    sx={{ backgroundColor: chipColor, color: "white" }}
+                    label={parseStatus(user.status)}
+                  />
+                </Grid>
+                <Grid item>
+                  <IconButton onClick={handleOpen}>
+                    <Edit />
+                  </IconButton>
+                </Grid>
+              </Grid>
             }
           />
           <Divider />
@@ -135,6 +176,7 @@ export const UpdateUser = ({ user }: UpdateUserProps) => {
           <CardActions></CardActions>
         </Card>
       </Box>
+      <EditUserDialog />
     </Container>
   );
 };

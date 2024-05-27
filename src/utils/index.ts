@@ -41,3 +41,16 @@ export const generateCreditCardExpiryDateString = (expiryDate: string) => {
     date.getUTCMonth().toString()
   )}/${date.getUTCFullYear()}`;
 };
+
+export const setStatusChipColor = (status: Status) => {
+  switch (status) {
+    case Status.PENDING:
+      return "#F6B01A";
+    case Status.PROCESSING:
+      return "#425EC4";
+    case Status.COMPLETED:
+      return "#65C442";
+    default:
+      return "#F6B01A";
+  }
+};

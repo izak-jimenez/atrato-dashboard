@@ -2,13 +2,13 @@ import { Box, Button, Grid, Stack, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { IUser } from "../types/user";
 import { UserCard } from "./UserCard";
+import { Animated } from "./Animated";
 
 export type DashboardProps = {
   users: IUser[];
 };
 
 export const Dashboard = ({ users }: DashboardProps) => {
-  console.log("USERS: ", users);
   const navigate = useNavigate();
 
   const handleCreateUser = () => {

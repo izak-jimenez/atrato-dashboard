@@ -32,3 +32,16 @@ export interface ICreateUserInput {
   assignedAnalyst: String;
   cardId: Number;
 }
+
+export interface IUpdateUserInput {
+  userId: number;
+  name?: String;
+  middleName?: String;
+  fLastName?: String;
+  sLastName?: String;
+  email?: String;
+  phone?: String;
+  birthday?: String;
+  status?: Status;
+  assignedAnalyst?: String;
+}
