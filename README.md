@@ -14,8 +14,8 @@ Para descargar todas las dependencias utiliza el comando:
 
 ### `npm install`
 
-## Antes de iniciar tangto el frontend como el backend, es necesario que se definan las variables de entorno necesarias para establecer la conexión con PostgreSQL y con el graphQL 
-## API de Atrato Dashboard.
+### Antes de iniciar tangto el frontend como el backend, es necesario que se definan las variables de entorno necesarias para establecer la conexión con PostgreSQL y con el graphQL 
+### API de Atrato Dashboard.
 
 ### Para generar los queries de GraphQL ejecuta el siguiente comando:
 ### `npx prisma generate`
