@@ -35,5 +35,7 @@ Tecnologías utilizadas para este proyecto:
 - Express
 - GraphQL
 - Apollo Server y Client
+- Prisma
+- PostgreSQL
 - Pothos
 - Typescript
